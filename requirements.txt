@@ -1,0 +1,2 @@
+Django>=3.0.3
+APScheduler>=3.6.3
