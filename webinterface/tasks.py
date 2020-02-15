@@ -1,3 +1,8 @@
+class TasksClass():
 
-def update_forecast():
-	print('hi')
+    def __init__(self, count):
+        self.count = count
+
+    def update_forecast(self):
+        self.count += 3
+        print('hi:', self.count)
