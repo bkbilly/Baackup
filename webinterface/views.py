@@ -11,10 +11,12 @@ def directories(request):
     context = {'tab': 'Directories', 'directories': directories}
     return render(request, 'webinterface/directories.html', context)
 
+
 def history(request):
     history = BackupHistory.objects.order_by('-processed_date').all()
     context = {'tab': 'History', 'history': history}
     return render(request, 'webinterface/history.html', context)
+
 
 def settings(request):
     logs = Logs.objects.order_by('date').all()
