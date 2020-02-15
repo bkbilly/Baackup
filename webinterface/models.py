@@ -8,8 +8,8 @@ class Notification(models.Model):
     sender = models.CharField(max_length=200, default='')
 
 
-class ExcludedDirs(models.Model):
-    directory = models.CharField(max_length=200, default='')
+# class ExcludedDirs(models.Model):
+#     directory = models.CharField(max_length=200, default='')
 
 
 class Directories(models.Model):
@@ -21,7 +21,8 @@ class Directories(models.Model):
     remote_url = models.CharField(max_length=200, default='', blank=True)
     remote_user = models.CharField(max_length=100, default='', blank=True)
     remote_pass = models.CharField(max_length=100, default='', blank=True)
-    exclude_dirs = models.ManyToManyField(ExcludedDirs, blank=True)
+    exclude_dirs = models.CharField(max_length=5000, default='', blank=True)
+    # exclude_dirs = models.ManyToManyField(ExcludedDirs, blank=True)
 
     def summary_path(self):
         sumpath = self.path
