@@ -28,7 +28,7 @@
       <td>{{ directory.exists }}</td>
       <td align="center">
         <a href="add_directory?item_id={{ directory.id }}"><img src="{% static 'webinterface/Images/information.png' %}"></a>
-        <a href="#"><img src="{% static 'webinterface/Images/delete.png' %}"></a>
+        <a href="delete_directory?item_id={{ directory.id }}"><img src="{% static 'webinterface/Images/delete.png' %}"></a>
       </td>
     </tr>
     {% endfor %}

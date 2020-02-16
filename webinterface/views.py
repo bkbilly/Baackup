@@ -77,6 +77,13 @@ def add_directory(request):
     return render(request, 'webinterface/addDirectory.html', {'form': form})
 
 
+def delete_directory(request):
+    item_id = request.GET.get('item_id')
+    Directories.objects.filter(id=item_id).delete()
+
+    return HttpResponseRedirect('directories')
+
+
 def directories(request):
     directories = Directories.objects.order_by('name').all()
     context = {'tab': 'Directories', 'directories': directories}
