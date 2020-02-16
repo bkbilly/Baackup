@@ -1,9 +1,17 @@
 from django.shortcuts import render
+from django.shortcuts import redirect
 
 # Create your views here.
 from django.http import HttpResponse
 from .models import Directories, BackupHistory, Logs
 # from django.template import loader
+from .tasks import TasksClass
+
+
+def start_backup(request):
+    tc = TasksClass()
+    tc.backup()
+    return redirect('history')
 
 
 def directories(request):

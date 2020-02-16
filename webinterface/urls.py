@@ -7,4 +7,5 @@ urlpatterns = [
     path('directories', views.directories, name='index'),
     path('history', views.history, name='history'),
     path('settings', views.settings, name='settings'),
+    path('start_backup', views.start_backup, name='start_backup'),
 ]
