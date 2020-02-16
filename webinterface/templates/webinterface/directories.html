@@ -16,7 +16,7 @@
       <th class="th-sm">Location</th>
       <th class="th-sm">Exists</th>
       <th class="th-sm" style="text-align: center;">
-        <a href="#"><img src="{% static 'webinterface/Images/plus-thick.png' %}"></a>
+        <a href="add_directory"><img src="{% static 'webinterface/Images/plus-thick.png' %}"></a>
       </th>
     </tr>
   </thead>
@@ -27,7 +27,7 @@
       <td>{{ directory.summary_path }}</td>
       <td>{{ directory.exists }}</td>
       <td align="center">
-        <a href="#"><img src="{% static 'webinterface/Images/information.png' %}"></a>
+        <a href="add_directory?item_id={{ directory.id }}"><img src="{% static 'webinterface/Images/information.png' %}"></a>
         <a href="#"><img src="{% static 'webinterface/Images/delete.png' %}"></a>
       </td>
     </tr>
