@@ -77,7 +77,7 @@ class BackupHistory(models.Model):
 
     def exists(self):
         exists = False
-        if os.path.isfile(self.path):
+        if os.path.exists(self.path):
             exists = True
         return exists
     # exists = models.BooleanField(default=True)

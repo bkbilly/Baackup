@@ -90,6 +90,7 @@ class TasksClass():
                 print('  %s: %s %s' % (self.directory.name, size, unit))
         size, unit = self.get_size(self.tmp_backup_folder)
         print('ALL: %s %s' % (size, unit))
+        return self.tmp_backup_folder, '{} {}'.format(size, unit)
 
     def get_size(self, path):
         size = sum([sum(map(lambda fname: os.path.getsize(os.path.join(
