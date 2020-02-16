@@ -77,15 +77,16 @@ class TasksClass():
         os.makedirs(self.tmp_backup_folder)
 
         for self.directory in Directories.objects.all():
-            backup_location = os.path.join(
-                self.tmp_backup_folder, self.directory.name)
-            if self.directory.location == 'local':
-                self.backup_local(backup_location)
-            if self.directory.location == 'remote':
-                self.backup_ssh(backup_location)
-            size, unit = self.get_size(backup_location)
-            # logging.info('%s: %s %s' % (self.directory.name, size, unit))
-            print('  %s: %s %s' % (self.directory.name, size, unit))
+            if os.path.exists(self.directory.path):
+                backup_location = os.path.join(
+                    self.tmp_backup_folder, self.directory.name)
+                if self.directory.location == 'local':
+                    self.backup_local(backup_location)
+                if self.directory.location == 'remote':
+                    self.backup_ssh(backup_location)
+                size, unit = self.get_size(backup_location)
+                # logging.info('%s: %s %s' % (self.directory.name, size, unit))
+                print('  %s: %s %s' % (self.directory.name, size, unit))
         size, unit = self.get_size(self.tmp_backup_folder)
         print('ALL: %s %s' % (size, unit))
 
