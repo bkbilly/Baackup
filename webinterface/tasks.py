@@ -77,7 +77,7 @@ class TasksClass():
         os.makedirs(self.tmp_backup_folder)
 
         for self.directory in Directories.objects.all():
-            if os.path.exists(self.directory.path):
+            if self.directory.exists:
                 backup_location = os.path.join(
                     self.tmp_backup_folder, self.directory.name)
                 if self.directory.location == 'local':
