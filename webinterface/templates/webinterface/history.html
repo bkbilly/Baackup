@@ -16,6 +16,7 @@
       <th class="th-sm">Location</th>
       <th class="th-sm">Size</th>
       <th class="th-sm">Exists</th>
+      <th class="th-sm">Comment</th>
       <th class="th-sm" style="text-align: center;">
         <a href="start_backup"><img src="{% static 'webinterface/Images/backup-restore.png' %}"></a>
       </th>
@@ -28,6 +29,7 @@
       <td>{{ record.path }}</td>
       <td>{{ record.size }}</td>
       <td>{{ record.exists }}</td>
+      <td>{{ record.comment }}</td>
       <td align="center">
         <a href="#"><img src="{% static 'webinterface/Images/cloud-download.png' %}"></a>
         <a href="#"><img src="{% static 'webinterface/Images/delete.png' %}"></a>

@@ -12,8 +12,14 @@ from .forms import AddDirectoryForm
 
 def start_backup(request):
     tc = TasksClass()
-    location, size = tc.backup()
-    BackupHistory(processed_date=datetime.now(), path=location, size=size).save()
+    location, size, didnotprocess = tc.backup()
+    comment = ''
+    if len(didnotprocess) > 0:
+        comment = 'rejected: {}'.format(','.join(didnotprocess))
+    BackupHistory(processed_date=datetime.now(),
+                  path=location,
+                  size=size,
+                  comment=comment).save()
     return redirect('history')
 
 

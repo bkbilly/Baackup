@@ -74,6 +74,7 @@ class BackupHistory(models.Model):
     processed_date = models.DateTimeField('Created date')
     path = models.CharField(max_length=200, default='')
     size = models.CharField(max_length=50, default='')
+    comment = models.CharField(max_length=500, default='')
 
     def exists(self):
         exists = False

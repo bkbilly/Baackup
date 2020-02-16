@@ -77,8 +77,9 @@ class TasksClass():
         #     os.remove(out_gpg)
         os.makedirs(self.tmp_backup_folder)
 
+        didnotprocess = []
         for self.directory in Directories.objects.all():
-            if self.directory.exists():
+            if self.directory.exists() is True:
                 backup_location = os.path.join(
                     self.tmp_backup_folder, self.directory.name)
                 if self.directory.location == 'local':
@@ -88,9 +89,13 @@ class TasksClass():
                 size, unit = self.get_size(backup_location)
                 # logging.info('%s: %s %s' % (self.directory.name, size, unit))
                 print('  %s: %s %s' % (self.directory.name, size, unit))
+            else:
+                didnotprocess.append(self.directory.name)
+
         size, unit = self.get_size(self.tmp_backup_folder)
         print('ALL: %s %s' % (size, unit))
-        return self.tmp_backup_folder, '{} {}'.format(size, unit)
+
+        return self.tmp_backup_folder, '{} {}'.format(size, unit), didnotprocess
 
     def get_size(self, path):
         size = sum([sum(map(lambda fname: os.path.getsize(os.path.join(
