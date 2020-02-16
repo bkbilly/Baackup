@@ -1,5 +1,7 @@
 from django.db import models
 import os.path
+from stat import S_ISDIR
+import paramiko
 
 # Create your models here.
 
@@ -22,6 +24,7 @@ class Directories(models.Model):
     remote_user = models.CharField(max_length=100, default='', blank=True)
     remote_pass = models.CharField(max_length=100, default='', blank=True)
     exclude_dirs = models.CharField(max_length=5000, default='', blank=True)
+    remote_port = models.IntegerField(default=22)
     # exclude_dirs = models.ManyToManyField(ExcludedDirs, blank=True)
 
     def summary_path(self):
@@ -33,6 +36,26 @@ class Directories(models.Model):
                 self.path)
         return sumpath
 
+    def exists(self):
+        # print('---->', self.location, self.name, self.remote_url)
+        exists = False
+        if self.location in ['local', '']:
+            if os.path.exists(self.path):
+                exists = True
+        elif self.location == 'remote':
+            try:
+                transport = paramiko.Transport((self.remote_url, self.remote_port))
+                transport.connect(username=self.remote_user,
+                                  password=self.remote_pass)
+                sftp = paramiko.SFTPClient.from_transport(transport)
+                try:
+                    sftp.stat(self.path)
+                    exists = True
+                except FileNotFoundError:
+                    exists = False
+            except Exception as e:
+                exists = "Can't connect"
+        return exists
 
 class Settings(models.Model):
     run_hour = models.IntegerField(default=4)
