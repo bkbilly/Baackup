@@ -39,12 +39,13 @@ class TasksClass():
         return ignore
 
     def backup_ssh(self, backup_location):
-        port = 22
-        paramiko.util.log_to_file('/tmp/paramiko.log')
-        transport = paramiko.Transport((self.directory.remote_url, port))
-        transport.connect(username=self.directory.remote_user,
-                          password=self.directory.remote_pass)
-        self.sftp = paramiko.SFTPClient.from_transport(transport)
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(self.directory.remote_url,
+                    username=self.directory.remote_user,
+                    password=self.directory.remote_pass,
+                    timeout=3)
+        self.sftp = ssh.open_sftp()
 
         for path, files in self.sftp_walk(self.directory.path):
             folder = path.replace(self.directory.path, '').lstrip('/')

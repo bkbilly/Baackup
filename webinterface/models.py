@@ -44,18 +44,24 @@ class Directories(models.Model):
                 exists = True
         elif self.location == 'remote':
             try:
-                transport = paramiko.Transport((self.remote_url, self.remote_port))
-                transport.connect(username=self.remote_user,
-                                  password=self.remote_pass)
-                sftp = paramiko.SFTPClient.from_transport(transport)
+                ssh = paramiko.SSHClient()
+                ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                ssh.connect(self.remote_url,
+                            username=self.remote_user,
+                            password=self.remote_pass,
+                            timeout=3)
+                sftp = ssh.open_sftp()
+
                 try:
                     sftp.stat(self.path)
                     exists = True
                 except FileNotFoundError:
                     exists = False
             except Exception as e:
+                print(e)
                 exists = "Can't connect"
         return exists
+
 
 class Settings(models.Model):
     run_hour = models.IntegerField(default=4)
