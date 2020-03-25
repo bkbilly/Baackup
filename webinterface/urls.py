@@ -6,6 +6,7 @@ urlpatterns = [
     path('', views.directories, name='index'),
     path('directories', views.directories, name='index'),
     path('history', views.history, name='history'),
+    path('history_single', views.history_single, name='history_single'),
     path('settings', views.settings, name='settings'),
     path('start_backup', views.start_backup, name='start_backup'),
     path('add_directory', views.add_directory, name='add_directory'),

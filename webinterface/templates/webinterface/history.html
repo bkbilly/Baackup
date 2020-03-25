@@ -31,6 +31,7 @@
       <td>{{ record.exists }}</td>
       <td>{{ record.comment }}</td>
       <td align="center">
+        <a href="history_single?item_id={{ record.id }}"><img src="{% static 'webinterface/Images/information.png' %}"></a>
         <a href="download_backup?item_id={{ record.id }}"><img src="{% static 'webinterface/Images/cloud-download.png' %}"></a>
         <a href="delete_history?item_id={{ record.id }}"><img src="{% static 'webinterface/Images/delete.png' %}"></a>
       </td>

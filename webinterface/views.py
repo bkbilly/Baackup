@@ -4,7 +4,7 @@ from datetime import datetime
 
 # Create your views here.
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Directories, BackupHistory, Logs
+from .models import Directories, BackupHistory, Logs, DirectoriesStatus
 # from django.template import loader
 from .tasks import TasksClass
 from .forms import AddDirectoryForm
@@ -17,14 +17,27 @@ from io import StringIO
 
 def start_backup(request):
     tc = TasksClass()
-    location, size, didnotprocess = tc.backup()
+    location, size, processed = tc.backup()
     comment = ''
+    didnotprocess = [sub['name']
+                     for sub in processed if sub['exists'] is not True]
     if len(didnotprocess) > 0:
         comment = 'rejected: {}'.format(','.join(didnotprocess))
-    BackupHistory(processed_date=datetime.now(),
-                  path=location,
-                  size=size,
-                  comment=comment).save()
+    model_backup = BackupHistory(
+        processed_date=datetime.now(),
+        path=location,
+        size=size,
+        comment=comment)
+    model_backup.save()
+    for proc in processed:
+        model_dir = DirectoriesStatus(
+            name=proc['name'],
+            size=proc['size'],
+            exists=proc['exists']
+        )
+        model_dir.save()
+        model_backup.directories_status.add(model_dir)
+    model_backup.save()
     return redirect('history')
 
 
@@ -150,6 +163,15 @@ def history(request):
     history = BackupHistory.objects.order_by('-processed_date').all()
     context = {'tab': 'History', 'history': history}
     return render(request, 'webinterface/history.html', context)
+
+
+def history_single(request):
+    item_id = request.GET.get('item_id')
+    history = BackupHistory.objects.get(id=item_id)
+    directories = history.directories_status.all()
+    context = {'tab': 'History', 'history': history,
+               'directories': directories}
+    return render(request, 'webinterface/history_single.html', context)
 
 
 def settings(request):

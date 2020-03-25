@@ -70,11 +70,18 @@ class Settings(models.Model):
     notification = models.ManyToManyField(Notification)
 
 
+class DirectoriesStatus(models.Model):
+    name = models.CharField(max_length=200, default='')
+    size = models.CharField(max_length=200, default='')
+    exists = models.CharField(max_length=200, default='')
+
+
 class BackupHistory(models.Model):
     processed_date = models.DateTimeField('Created date')
     path = models.CharField(max_length=200, default='')
     size = models.CharField(max_length=50, default='')
     comment = models.CharField(max_length=500, default='')
+    directories_status = models.ManyToManyField(DirectoriesStatus)
 
     def exists(self):
         exists = False
