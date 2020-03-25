@@ -12,7 +12,7 @@ from .forms import AddDirectoryForm
 
 import os
 import zipfile
-from io import StringIO
+from io import StringIO, BytesIO
 
 
 def start_backup(request):
@@ -42,36 +42,22 @@ def start_backup(request):
 
 
 def download_backup(request):
-    # Files (local path) to put in the .zip
-    # FIXME: Change this (get paths from DB etc)
-    filenames = ["/tmp/file1.txt", "/tmp/file2.txt"]
+    item_id = request.GET.get('item_id')
+    history = BackupHistory.objects.get(id=item_id)
+    zip_filename = 'baackup-{}.zip'.format(
+        history.processed_date.strftime("%Y-%m-%d_%H-%M-%S")
+    )
 
-    # Folder name in ZIP archive which contains the above files
-    # E.g [thearchive.zip]/somefiles/file2.txt
-    # FIXME: Set this to something better
-    zip_subdir = "somefiles"
-    zip_filename = "%s.zip" % zip_subdir
+    s = BytesIO()
+    zipf = zipfile.ZipFile(s, 'w', zipfile.ZIP_DEFLATED)
+    for root, dirs, files in os.walk(history.path):
+        for file in files:
+            zipf.write(os.path.join(root, file))
+    zipf.close()
 
-    # Open StringIO to grab in-memory ZIP contents
-    s = StringIO()
-
-    # The zip compressor
-    zf = zipfile.ZipFile(s, "w")
-
-    for fpath in filenames:
-        # Calculate path for file in zip
-        fdir, fname = os.path.split(fpath)
-        zip_path = os.path.join(zip_subdir, fname)
-
-        # Add file, at correct path
-        zf.write(fpath, zip_path)
-
-    # Must close zip for all contents to be written
-    zf.close()
-
-    # Grab ZIP file from in-memory, make response with correct MIME-type
-    resp = HttpResponse(s.getvalue(), mimetype="application/x-zip-compressed")
-    # ..and correct content-disposition
+    # Grab ZIP file from in-memory, make response with correct Content-type
+    resp = HttpResponse(
+        s.getvalue(), content_type="application/x-zip-compressed")
     resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
 
     return resp
