@@ -98,7 +98,7 @@ class TasksClass():
             else:
                 processed.append({
                     'name': self.directory.name,
-                    'size': None,
+                    'size': '',
                     'exists': file_exists,
                 })
 
