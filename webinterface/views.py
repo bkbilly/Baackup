@@ -12,11 +12,11 @@ from .forms import AddDirectoryForm
 
 import os
 import zipfile
-from io import StringIO, BytesIO
+from io import BytesIO
 
 
 def start_backup(request):
-    tc = TasksClass()
+    tc = TasksClass('/tmp/baackup')
     location, size, processed = tc.backup()
     comment = ''
     didnotprocess = [sub['name']

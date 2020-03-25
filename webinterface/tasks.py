@@ -9,8 +9,8 @@ from fnmatch import fnmatch
 
 class TasksClass():
 
-    def __init__(self):
-        self.tmp_backup_folder = '/tmp/baackup'
+    def __init__(self, backup_folder):
+        self.backup_folder = backup_folder
         self.sftp = None
         self.directory = None
 
@@ -69,20 +69,20 @@ class TasksClass():
                  ignore=ignore_patterns(*ignore_dirs))
 
     def backup(self):
-        if os.path.isdir(self.tmp_backup_folder):
-            rmtree(self.tmp_backup_folder)
+        if os.path.isdir(self.backup_folder):
+            rmtree(self.backup_folder)
         # if os.path.exists(tmp_out_targz):
         #     os.remove(tmp_out_targz)
         # if os.path.exists(out_gpg):
         #     os.remove(out_gpg)
-        os.makedirs(self.tmp_backup_folder)
+        os.makedirs(self.backup_folder)
 
         processed = []
         for self.directory in Directories.objects.all():
             file_exists = self.directory.exists()
             if file_exists is True:
                 backup_location = os.path.join(
-                    self.tmp_backup_folder, self.directory.name)
+                    self.backup_folder, self.directory.name)
                 if self.directory.location == 'local':
                     self.backup_local(backup_location)
                 if self.directory.location == 'remote':
@@ -102,10 +102,10 @@ class TasksClass():
                     'exists': file_exists,
                 })
 
-        size, unit = self.get_size(self.tmp_backup_folder)
+        size, unit = self.get_size(self.backup_folder)
         print('ALL: %s %s' % (size, unit))
 
-        return self.tmp_backup_folder, '{} {}'.format(size, unit), processed
+        return self.backup_folder, '{} {}'.format(size, unit), processed
 
     def get_size(self, path):
         size = sum([sum(map(lambda fname: os.path.getsize(os.path.join(
