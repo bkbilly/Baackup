@@ -10,6 +10,11 @@ from .tasks import TasksClass
 from .forms import AddDirectoryForm
 
 
+import os
+import zipfile
+from io import StringIO
+
+
 def start_backup(request):
     tc = TasksClass()
     location, size, didnotprocess = tc.backup()
@@ -21,6 +26,42 @@ def start_backup(request):
                   size=size,
                   comment=comment).save()
     return redirect('history')
+
+
+def download_backup(request):
+    # Files (local path) to put in the .zip
+    # FIXME: Change this (get paths from DB etc)
+    filenames = ["/tmp/file1.txt", "/tmp/file2.txt"]
+
+    # Folder name in ZIP archive which contains the above files
+    # E.g [thearchive.zip]/somefiles/file2.txt
+    # FIXME: Set this to something better
+    zip_subdir = "somefiles"
+    zip_filename = "%s.zip" % zip_subdir
+
+    # Open StringIO to grab in-memory ZIP contents
+    s = StringIO()
+
+    # The zip compressor
+    zf = zipfile.ZipFile(s, "w")
+
+    for fpath in filenames:
+        # Calculate path for file in zip
+        fdir, fname = os.path.split(fpath)
+        zip_path = os.path.join(zip_subdir, fname)
+
+        # Add file, at correct path
+        zf.write(fpath, zip_path)
+
+    # Must close zip for all contents to be written
+    zf.close()
+
+    # Grab ZIP file from in-memory, make response with correct MIME-type
+    resp = HttpResponse(s.getvalue(), mimetype="application/x-zip-compressed")
+    # ..and correct content-disposition
+    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
+
+    return resp
 
 
 def add_directory(request):
@@ -59,7 +100,8 @@ def add_directory(request):
                     exclude_dirs=form.cleaned_data['exclude_dirs'])
                 newdir.save()
             else:
-                updateObject = Directories.objects.filter(id=form.cleaned_data['edit_id'])
+                updateObject = Directories.objects.filter(
+                    id=form.cleaned_data['edit_id'])
                 updateObject.update(
                     name=form.cleaned_data['name'],
                     location=form.cleaned_data['location'],
@@ -89,6 +131,13 @@ def delete_directory(request):
     Directories.objects.filter(id=item_id).delete()
 
     return HttpResponseRedirect('directories')
+
+
+def delete_history(request):
+    item_id = request.GET.get('item_id')
+    BackupHistory.objects.filter(id=item_id).delete()
+
+    return HttpResponseRedirect('history')
 
 
 def directories(request):
