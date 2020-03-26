@@ -83,13 +83,6 @@ class BackupHistory(models.Model):
     file = models.BinaryField(null=True)
     directories_status = models.ManyToManyField(DirectoriesStatus)
 
-    def exists(self):
-        exists = False
-        if os.path.exists(self.path):
-            exists = True
-        return exists
-    # exists = models.BooleanField(default=True)
-
 
 class Logs(models.Model):
     date = models.DateTimeField('Date')
