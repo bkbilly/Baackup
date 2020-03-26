@@ -81,7 +81,7 @@ def create_backuphistory(file, size='', comment='', processed=[]):
 
 
 def start_backup(request):
-    dirpath = '/tmp/baackup'
+    dirpath = 'temp_baackup'
     tc = TasksClass(dirpath)
     location, size, processed = tc.backup()
     comment = ''
