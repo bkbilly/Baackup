@@ -7,9 +7,7 @@
   <thead class="thead-dark">
     <tr>
       <th class="th-sm">Date</th>
-      <th class="th-sm">Location</th>
       <th class="th-sm">Size</th>
-      <th class="th-sm">Exists</th>
       <th class="th-sm">Comment</th>
       <th class="th-sm" style="text-align: center;">
         <a href="start_backup"><img src="{% static 'webinterface/Images/backup-restore.png' %}"></a>
@@ -20,9 +18,7 @@
     {% for record in history %}
     <tr>
       <td>{{ record.processed_date }}</td>
-      <td>{{ record.path }}</td>
       <td>{{ record.size }}</td>
-      <td>{{ record.exists }}</td>
       <td>{{ record.comment }}</td>
       <td align="center">
         <a href="history_single?item_id={{ record.id }}"><img src="{% static 'webinterface/Images/information.png' %}"></a>

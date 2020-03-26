@@ -13,21 +13,61 @@ from .forms import AddDirectoryForm
 import os
 import zipfile
 from io import BytesIO
+import pyAesCrypt
+import shutil
 
 
-def start_backup(request):
-    tc = TasksClass('/tmp/baackup')
-    location, size, processed = tc.backup()
-    comment = ''
-    didnotprocess = [sub['name']
-                     for sub in processed if sub['exists'] is not True]
-    if len(didnotprocess) > 0:
-        comment = 'rejected: {}'.format(','.join(didnotprocess))
+def make_zip(backup_path):
+    s = BytesIO()
+    zipf = zipfile.ZipFile(s, 'w', zipfile.ZIP_DEFLATED)
+    for root, dirs, files in os.walk(backup_path):
+        for file in files:
+            zipf.write(os.path.join(root, file))
+    zipf.close()
+    return s.getvalue()
+
+
+def encrypt(pbdata):
+    bufferSize = 64 * 1024
+    password = "foopassword"
+
+    # input plaintext binary stream
+    fIn = BytesIO(pbdata)
+    # initialize ciphertext binary stream
+    fCiph = BytesIO()
+    # encrypt stream
+    pyAesCrypt.encryptStream(fIn, fCiph, password, bufferSize)
+    return fCiph.getvalue()
+
+
+def decrypt(aes_file):
+    bufferSize = 64 * 1024
+    password = "foopassword"
+
+    fCiph = BytesIO(aes_file)
+    # get ciphertext length
+    ctlen = len(aes_file)
+    # go back to the start of the ciphertext stream
+    fCiph.seek(0)
+    # initialize decrypted binary stream
+    fDec = BytesIO()
+    # decrypt stream
+    success = True
+    try:
+        pyAesCrypt.decryptStream(fCiph, fDec, password, bufferSize, ctlen)
+    except Exception as e:
+        success = e
+        print(e)
+
+    return fDec.getvalue(), success
+
+
+def create_backuphistory(file, size='', comment='', processed=[]):
     model_backup = BackupHistory(
         processed_date=datetime.now(),
-        path=location,
         size=size,
-        comment=comment)
+        comment=comment,
+        file=file)
     model_backup.save()
     for proc in processed:
         model_dir = DirectoriesStatus(
@@ -38,6 +78,25 @@ def start_backup(request):
         model_dir.save()
         model_backup.directories_status.add(model_dir)
     model_backup.save()
+
+
+def start_backup(request):
+    dirpath = '/tmp/baackup'
+    tc = TasksClass(dirpath)
+    location, size, processed = tc.backup()
+    comment = ''
+    didnotprocess = [sub['name']
+                     for sub in processed if sub['exists'] is not True]
+    if len(didnotprocess) > 0:
+        comment = 'rejected: {}'.format(','.join(didnotprocess))
+
+    myzip = make_zip(dirpath)
+    aes_out = encrypt(myzip)
+    if os.path.exists(dirpath) and os.path.isdir(dirpath):
+        shutil.rmtree(dirpath)
+
+    create_backuphistory(aes_out, size, comment, processed)
+
     return redirect('history')
 
 
@@ -48,19 +107,22 @@ def download_backup(request):
         history.processed_date.strftime("%Y-%m-%d_%H-%M-%S")
     )
 
-    s = BytesIO()
-    zipf = zipfile.ZipFile(s, 'w', zipfile.ZIP_DEFLATED)
-    for root, dirs, files in os.walk(history.path):
-        for file in files:
-            zipf.write(os.path.join(root, file))
-    zipf.close()
+    zip_out, success = decrypt(history.file)
 
-    # Grab ZIP file from in-memory, make response with correct Content-type
-    resp = HttpResponse(
-        s.getvalue(), content_type="application/x-zip-compressed")
-    resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
+    if success is True:
+        # Grab ZIP file from in-memory, make response with correct Content-type
+        resp = HttpResponse(
+            zip_out, content_type="application/x-zip-compressed")
+        resp['Content-Disposition'] = 'attachment; filename=%s' % zip_filename
 
-    return resp
+        updateObject = BackupHistory.objects.filter(id=item_id)
+        updateObject.update(comment='')
+
+        return resp
+    else:
+        updateObject = BackupHistory.objects.filter(id=item_id)
+        updateObject.update(comment=success)
+        return HttpResponseRedirect('history')
 
 
 def add_directory(request):
