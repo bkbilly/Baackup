@@ -1,17 +1,8 @@
 from django.db import models
 import os.path
-from stat import S_ISDIR
 import paramiko
 
 # Create your models here.
-
-
-class Notification(models.Model):
-    sender = models.CharField(max_length=200, default='')
-
-
-# class ExcludedDirs(models.Model):
-#     directory = models.CharField(max_length=200, default='')
 
 
 class Directories(models.Model):

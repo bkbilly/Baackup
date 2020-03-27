@@ -27,9 +27,8 @@ def make_zip(backup_path):
     return s.getvalue()
 
 
-def encrypt(pbdata):
+def encrypt(pbdata, password):
     bufferSize = 64 * 1024
-    password = "foopassword"
 
     # input plaintext binary stream
     fIn = BytesIO(pbdata)
@@ -40,9 +39,8 @@ def encrypt(pbdata):
     return fCiph.getvalue()
 
 
-def decrypt(aes_file):
+def decrypt(aes_file, password):
     bufferSize = 64 * 1024
-    password = "foopassword"
 
     fCiph = BytesIO(aes_file)
     # get ciphertext length
@@ -81,6 +79,7 @@ def create_backuphistory(file, size='', comment='', processed=[]):
 
 
 def start_backup(request):
+    password = request.GET.get('password')
     dirpath = 'temp_baackup'
     tc = TasksClass(dirpath)
     location, size, processed = tc.backup()
@@ -91,7 +90,7 @@ def start_backup(request):
         comment = 'rejected: {}'.format(','.join(didnotprocess))
 
     myzip = make_zip(dirpath)
-    aes_out = encrypt(myzip)
+    aes_out = encrypt(myzip, password)
     if os.path.exists(dirpath) and os.path.isdir(dirpath):
         shutil.rmtree(dirpath)
 
@@ -102,12 +101,13 @@ def start_backup(request):
 
 def download_backup(request):
     item_id = request.GET.get('item_id')
+    password = request.GET.get('password')
     history = BackupHistory.objects.get(id=item_id)
     zip_filename = 'baackup-{}.zip'.format(
         history.processed_date.strftime("%Y-%m-%d_%H-%M-%S")
     )
 
-    zip_out, success = decrypt(history.file)
+    zip_out, success = decrypt(history.file, password)
 
     if success is True:
         # Grab ZIP file from in-memory, make response with correct Content-type

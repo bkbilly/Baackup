@@ -3,6 +3,7 @@
 {% block content %}
 
 
+
 <table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
   <thead class="thead-dark">
     <tr>
@@ -10,7 +11,8 @@
       <th class="th-sm">Size</th>
       <th class="th-sm">Comment</th>
       <th class="th-sm" style="text-align: center;">
-        <a href="start_backup"><img src="{% static 'webinterface/Images/backup-restore.png' %}"></a>
+        <!-- <a href="start_backup"><img src="{% static 'webinterface/Images/backup-restore.png' %}"></a> -->
+        <button type="button" class="" style="border:none;padding: 0;background: none;" data-toggle="modal" data-target="#encryptModal"><img src="{% static 'webinterface/Images/backup-restore.png' %}"></button>
       </th>
     </tr>
   </thead>
@@ -22,7 +24,8 @@
       <td>{{ record.comment }}</td>
       <td align="center">
         <a href="history_single?item_id={{ record.id }}"><img src="{% static 'webinterface/Images/information.png' %}"></a>
-        <a href="download_backup?item_id={{ record.id }}"><img src="{% static 'webinterface/Images/cloud-download.png' %}"></a>
+        <button type="button" data-item-id="{{ record.id }}" class="modal-btn-download" style="border:none;padding: 0;background: none;" data-toggle="modal" data-target="#decryptModal"><img src="{% static 'webinterface/Images/cloud-download.png' %}"></button>
+        <!-- <a href="download_backup?item_id={{ record.id }}"><img src="{% static 'webinterface/Images/cloud-download.png' %}"></a> -->
         <a href="delete_history?item_id={{ record.id }}"><img src="{% static 'webinterface/Images/delete.png' %}"></a>
       </td>
     </tr>
@@ -30,6 +33,108 @@
   </tbody>
 </table>
 
+
+
+<!-- Create Backups -->
+<div class="modal fade" id="encryptModal" tabindex="-1" role="dialog" aria-labelledby="encryptModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="encryptModalLabel">Create backup</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="encryption_password" class="col-form-label">Encryption password:</label>
+            <input type="password" class="form-control" id="encryption_password" required>
+            <span id="enc_error_txt" style="display: none;" class="error text-danger">Empty password is not allowed</span>
+          </div>
+        </form>
+        <img src="{% static 'webinterface/Images/loading.gif' %}" style="display: none;" id="loading_img">
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="start_backup()" id="savebutton">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Download Backups -->
+<div class="modal fade" id="decryptModal" tabindex="-1" role="dialog" aria-labelledby="decryptModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="decryptModalLabel">Download files</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <label for="item_id" class="col-form-label">Item ID:</label>
+            <input type="text" class="form-control" id="item_id">
+          </div>
+          <div class="form-group">
+            <label for="decryption_password" class="col-form-label">Encryption password:</label>
+            <input type="password" class="form-control" id="decryption_password" required>
+            <span id="decr_error_txt" style="display: none;" class="error text-danger">Empty password is not allowed</span>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="download_backup()" id="downloadbutton">Download</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+  $(function () {
+    $(".modal-btn-download").click(function (){
+      var item_id = $(this).data('item-id');
+      $("#item_id").val(item_id)
+    })
+  });
+
+  function start_backup() {
+    pass = $("#encryption_password").val()
+    if (pass == "") {
+      $("#enc_error_txt").show().delay(3000).fadeOut();
+      return
+    }
+
+    $("#loading_img").show()
+    $("#savebutton").prop('disabled', true);
+    $.get("start_backup", {"password": pass}).done(function(data) {
+      $("#loading_img").hide()
+      $("#savebutton").prop('disabled', false);
+      $(location).attr('href', 'history')
+    });
+  }
+
+  function download_backup() {
+    pass = $("#decryption_password").val()
+    item_id = $("#item_id").val()
+    if (pass == "") {
+      $("#decr_error_txt").show().delay(3000).fadeOut();
+      return
+    }
+
+    $("#decryptModal").modal('hide')
+    $(location).attr('href', 'download_backup?item_id='+ item_id+ '&password='+ pass)
+    // $(location).attr('href', 'history')
+    // $.get("download_backup", {"item_id": item_id, "password": pass}).done(function(data) {
+    // });
+  }
+</script>
 
 
 {% endblock %}
