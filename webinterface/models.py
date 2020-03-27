@@ -63,13 +63,6 @@ class Directories(models.Model):
         return exists
 
 
-class Settings(models.Model):
-    run_hour = models.IntegerField(default=4)
-    tmp_dir = models.CharField(max_length=200, default='./')
-    encrypt_pass = models.CharField(max_length=100, default='1234')
-    notification = models.ManyToManyField(Notification)
-
-
 class DirectoriesStatus(models.Model):
     name = models.CharField(max_length=200, default='')
     size = models.CharField(max_length=200, default='')

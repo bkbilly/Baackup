@@ -220,9 +220,3 @@ def history_single(request):
     context = {'tab': 'History', 'history': history,
                'directories': directories}
     return render(request, 'webinterface/history_single.html', context)
-
-
-def settings(request):
-    logs = Logs.objects.order_by('date').all()
-    context = {'tab': 'Settings', 'logs': logs}
-    return render(request, 'webinterface/settings.html', context)
