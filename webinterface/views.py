@@ -131,12 +131,9 @@ def add_directory(request):
         # create a form instance and populate it with data from the request:
         form = AddDirectoryForm(data=request.POST)
         # check whether it's valid:
+        print(form.is_valid())
         if form.is_valid():
             form.cleaned_data['backup_type'] = 'folder'
-            if form.cleaned_data['remote_url'] == '':
-                form.cleaned_data['location'] = 'local'
-            else:
-                form.cleaned_data['location'] = 'remote'
             if form.cleaned_data['remote_port'] is None:
                 form.cleaned_data['remote_port'] = 22
             excluded = form.cleaned_data['exclude_dirs']

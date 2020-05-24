@@ -3,11 +3,93 @@
 {% block content %}
 
 
+
 <form action="/add_directory" method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Submit">
+  {% csrf_token %}
+  <input readonly type="hidden" class="form-control" id="{{ form.edit_id.id_for_label }}" name="{{ form.edit_id.html_name }}" value="{{ form.edit_id.value | default_if_none:'' }}">
+  <div class="form-group row" id="group_{{ form.location.id_for_label }}">
+    <label for="{{ form.location.id_for_label }}" class="col-sm-2 col-form-label">{{ form.location.label }}</label>
+    <div class="col-sm-10">
+      <select class="form-control" id="{{ form.location.id_for_label }}", name="{{ form.location.html_name }}">
+        <option value="local">Local</option>
+        <option value="remote">Remote</option>
+      </select>
+    </div>
+  </div>
+  <div class="form-group row" id="group_{{ form.name.id_for_label }}">
+    <label for="{{ form.name.id_for_label }}" class="col-sm-2 col-form-label">{{ form.name.label }}</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="{{ form.name.id_for_label }}" name="{{ form.name.html_name }}" value="{{ form.name.value | default_if_none:'' }}">
+    </div>
+  </div>
+  <div class="form-group row" id="group_{{ form.path.id_for_label }}">
+    <label for="{{ form.path.id_for_label }}" class="col-sm-2 col-form-label">{{ form.path.label }}</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="{{ form.path.id_for_label }}" name="{{ form.path.html_name }}" value="{{ form.path.value | default_if_none:'' }}">
+    </div>
+  </div>
+  <div class="form-group row" id="group_{{ form.remote_url.id_for_label }}">
+    <label for="{{ form.remote_url.id_for_label }}" class="col-sm-2 col-form-label">{{ form.remote_url.label }}</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="{{ form.remote_url.id_for_label }}" name="{{ form.remote_url.html_name }}" value="{{ form.remote_url.value | default_if_none:'' }}">
+    </div>
+  </div>
+  <div class="form-group row" id="group_{{ form.remote_port.id_for_label }}">
+    <label for="{{ form.remote_port.id_for_label }}" class="col-sm-2 col-form-label">{{ form.remote_port.label }}</label>
+    <div class="col-sm-10">
+      <input type="number" class="form-control" id="{{ form.remote_port.id_for_label }}" name="{{ form.remote_port.html_name }}" value="{{ form.remote_port.value | default_if_none:'22' }}">
+    </div>
+  </div>
+  <div class="form-group row" id="group_{{ form.remote_user.id_for_label }}">
+    <label for="{{ form.remote_user.id_for_label }}" class="col-sm-2 col-form-label">{{ form.remote_user.label }}</label>
+    <div class="col-sm-10">
+      <input type="text" class="form-control" id="{{ form.remote_user.id_for_label }}" name="{{ form.remote_user.html_name }}" value="{{ form.remote_user.value | default_if_none:'' }}">
+    </div>
+  </div>
+  <div class="form-group row" id="group_{{ form.remote_pass.id_for_label }}">
+    <label for="{{ form.remote_pass.id_for_label }}" class="col-sm-2 col-form-label">{{ form.remote_pass.label }}</label>
+    <div class="col-sm-10">
+      <input type="password" class="form-control" id="{{ form.remote_pass.id_for_label }}" name="{{ form.remote_pass.html_name }}" value="{{ form.remote_pass.value | default_if_none:'' }}">
+    </div>
+  </div>
+  <div class="form-group row" id="group_{{ form.exclude_dirs.id_for_label }}">
+    <label for="{{ form.exclude_dirs.id_for_label }}" class="col-sm-2 col-form-label">{{ form.exclude_dirs.label }}</label>
+    <div class="col-sm-10">
+      <textarea class="form-control" id="{{ form.exclude_dirs.id_for_label }}" name="{{ form.exclude_dirs.html_name }}" rows="10">{{ form.exclude_dirs.value  | default_if_none:''}}</textarea>
+    </div>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+<p>
+
+
+
+<script>
+
+
+  $(function () {
+    $( "#{{ form.location.id_for_label }}" ).change(function() {
+      path_location = $("#{{ form.location.id_for_label }}").val();
+      if (path_location === 'local') {
+        $("#group_{{ form.remote_url.id_for_label }}").hide();
+        $("#group_{{ form.remote_port.id_for_label }}").hide();
+        $("#group_{{ form.remote_user.id_for_label }}").hide();
+        $("#group_{{ form.remote_pass.id_for_label }}").hide();
+      } else {
+        $("#group_{{ form.remote_url.id_for_label }}").show();
+        $("#group_{{ form.remote_port.id_for_label }}").show();
+        $("#group_{{ form.remote_user.id_for_label }}").show();
+        $("#group_{{ form.remote_pass.id_for_label }}").show();
+      }
+    });
+
+    $("#{{ form.location.id_for_label }}").val("{{ form.location.value }}").change();
+
+  });
+
+</script>
+
+
 
 
 {% endblock %}

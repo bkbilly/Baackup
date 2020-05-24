@@ -24,6 +24,7 @@ class AddDirectoryForm(forms.Form):
                 db_dir = db_dir[0]
                 self.fields['edit_id'].initial = item_id
                 self.fields['name'].initial = db_dir.name
+                self.fields['location'].initial = db_dir.location
                 self.fields['path'].initial = db_dir.path
                 self.fields['remote_url'].initial = db_dir.remote_url
                 self.fields['remote_port'].initial = db_dir.remote_port
