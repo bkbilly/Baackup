@@ -49,7 +49,7 @@ echo -e "\e[35mInstalling as a service...\e[0m"
 sudo cp $basedir/autostart/baackup.service /etc/systemd/system/baackup.service
 sudo chmod +x /etc/systemd/system/baackup.service
 sudo systemctl enable baackup
-sudo service baackup start
+sudo service baackup restart
 
 
 # Done
