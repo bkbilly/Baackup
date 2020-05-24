@@ -83,10 +83,14 @@ class TasksClass():
             if file_exists is True:
                 backup_location = os.path.join(
                     self.backup_folder, self.directory.name)
-                if self.directory.location == 'local':
-                    self.backup_local(backup_location)
-                if self.directory.location == 'remote':
-                    self.backup_ssh(backup_location)
+                try:
+                    if self.directory.location == 'local':
+                        self.backup_local(backup_location)
+                    if self.directory.location == 'remote':
+                        self.backup_ssh(backup_location)
+                except Exception as e:
+                    print('error backing directory: {}'.format(backup_location))
+                    raise e
                 size, unit = self.get_size(backup_location)
                 # logging.info('%s: %s %s' % (self.directory.name, size, unit))
                 print('  %s: %s %s' % (self.directory.name, size, unit))
