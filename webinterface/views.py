@@ -3,6 +3,7 @@ from django.shortcuts import redirect
 from datetime import datetime
 
 # Create your views here.
+from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseRedirect
 from .models import Directories, BackupHistory, Logs, DirectoriesStatus
 # from django.template import loader
@@ -78,6 +79,7 @@ def create_backuphistory(file, size='', comment='', processed=[]):
     model_backup.save()
 
 
+@csrf_exempt
 def start_backup(request):
     password = request.GET.get('password')
     dirpath = 'temp_baackup'
