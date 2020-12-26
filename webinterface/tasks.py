@@ -1,5 +1,5 @@
 from .models import Directories
-from shutil import copytree, ignore_patterns, rmtree
+from shutil import copytree, copy2, ignore_patterns, rmtree
 import os
 
 import paramiko
@@ -64,9 +64,15 @@ class TasksClass():
 
     def backup_local(self, backup_location):
         ignore_dirs = self.directory.exclude_dirs.split(',')
-        copytree(self.directory.path,
-                 backup_location,
-                 ignore=ignore_patterns(*ignore_dirs))
+        if os.path.isdir(self.directory.path):
+            copytree(self.directory.path,
+                     backup_location,
+                     ignore=ignore_patterns(*ignore_dirs))
+        elif os.path.isfile(self.directory.path):
+            os.mkdir(backup_location)
+            copy2(self.directory.path,
+                  backup_location)
+
 
     def backup(self):
         if os.path.isdir(self.backup_folder):
